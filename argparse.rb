@@ -13,8 +13,11 @@ class Arg < Struct.new(:name, :long, :short, :help, :default, :type, :choices, :
     # type: Class - Integer / Float / String
     # choises: Array - to give the choises
 
-
     TYPES = [Integer, Float, String, Symbol]
+
+    FILEEXIST = Proc.new{ |f| raise ArgumentError, "File #{f} not exist" unless File.exist?(f) ; f }
+
+
 
     # optional
     def self.optional(name, help=nil, short=true, **hash)
@@ -103,7 +106,7 @@ class ArgParser
     ACCEPTABLE_VALUES = [String, Numeric, Proc, Array, TrueClass, FalseClass]
     
     def initialize(ignore_unkown=false)
-        help = Arg.optional(:help, "to show help", default:false)
+        help = Arg.optional(:help, "show this help", default:false)
         @optset = Set.new
 
         @longhash = Hash[help.long, help]
@@ -231,10 +234,9 @@ end
 if __FILE__ == $0
 
     parser = ArgParser.new
-    parser.add_opt(Arg.optional(:test, "this is test", default:10))
-    parser.add_opt(Arg.positional(:hogehoge, "this is test", default:"30.0"))
-    puts parser.usage
-    puts parser.help
+    parser.add_opt(Arg.positional(:file, "input file", default:"test.txt"))
+    parser.add_opt(Arg.optional(:quiet, "quiet", default:false))
+    parser.add_opt(Arg.optional(:verbose, "verbose", default:false))
     p parser.parse(ARGV)
 
     
